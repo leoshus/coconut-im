@@ -41,9 +41,9 @@ public class CocoImHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         logger.info("client connected conn={}", ctx.channel());
-        Connection connection = new NettyConnection();
+        /*Connection connection = new NettyConnection();
         connection.init(ctx.channel(), false);
-        connectionManager.add(connection);
+        connectionManager.add(connection);*/
     }
 
     @Override

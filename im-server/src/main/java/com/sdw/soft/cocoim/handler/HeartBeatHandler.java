@@ -1,9 +1,8 @@
 package com.sdw.soft.cocoim.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.sdw.soft.cocoim.connection.Connection;
 import com.sdw.soft.cocoim.protocol.HeartBeatPacket;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,14 +12,13 @@ import org.slf4j.LoggerFactory;
  * @date 2019-11-03 15:38
  * @description
  **/
-public class HeartBeatHandler extends SimpleChannelInboundHandler<HeartBeatPacket> {
+public class HeartBeatHandler implements MessageHandler<HeartBeatPacket> {
 
     private static final Logger logger = LoggerFactory.getLogger(HeartBeatHandler.class);
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HeartBeatPacket msg) throws Exception {
-        logger.info("server receive heartbeat:{}", JSON.toJSON(msg));
-
-        ctx.writeAndFlush(msg);
+    public void handleMessage(Connection connection, HeartBeatPacket packet) {
+        logger.info("server receive heartbeat:{}", JSON.toJSON(packet));
+        connection.channel().writeAndFlush(packet);
     }
 }

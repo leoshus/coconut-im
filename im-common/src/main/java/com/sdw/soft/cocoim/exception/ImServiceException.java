@@ -15,6 +15,11 @@ public class ImServiceException extends RuntimeException {
 
     private int code;
 
+    public ImServiceException(String message) {
+        super(message);
+        this.code = 500;
+    }
+
     public ImServiceException(ErrorCode errorCode) {
         super(errorCode.msg);
         this.code = errorCode.code;
