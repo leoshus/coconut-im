@@ -1,6 +1,7 @@
 package com.sdw.soft.cocoim.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.sdw.soft.cocoim.connection.Connection;
 import com.sdw.soft.cocoim.protocol.ChatResponsePacket;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -18,8 +19,6 @@ public class ChatResponseHandler extends BaseMessageHandler<ChatResponsePacket> 
 
     @Override
     protected void handleMessage(ChannelHandlerContext ctx, ChatResponsePacket msg) {
-
         logger.info("client receive msg:{}", JSON.toJSON(msg));
-
     }
 }

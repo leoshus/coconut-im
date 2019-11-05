@@ -10,7 +10,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * @date 2019-11-03 15:08
  * @description
  **/
-public class LoginHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends ChannelInboundHandlerAdapter {
+
+    public static final ClientHandler INSTANCE = new ClientHandler();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

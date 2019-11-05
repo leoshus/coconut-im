@@ -6,37 +6,40 @@ import com.sdw.soft.cocoim.serialization.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * magiccode(4)+version(1)+serialization(1)+cmd(1)+length(4)+body(n)
+ *
  * @author shangyd
  * @version 1.0.0
  * @date 2019-11-02 23:47
  * @description
  **/
-public class BinaryCodec implements Codec {
+public class BinaryPacketCodec implements Codec {
 
-    private static final int MAGIC_CODE = 0x88888888;
+    private static final int MAGIC_CODE = 0x12345678;
 
     private static Serialization serialization = new Serialization();
 
-    private static BinaryCodec codec = new BinaryCodec();
+    private static BinaryPacketCodec codec = new BinaryPacketCodec();
 
-    private static Map<Byte, Class<? extends Packet>> packetMaping = new ConcurrentHashMap<>();
+    private final static Map<Byte, Class<? extends Packet>> packetMaping;
 
 
     static {
-        packetMaping.put(Command.HEARTBEAT.getCode(), HeartBeatPacket.class);
-        packetMaping.put(Command.CHAT_REQUEST.getCode(), ChatRequestPacket.class);
-        packetMaping.put(Command.CHAT_RESPONSE.getCode(), ChatResponsePacket.class);
-        packetMaping.put(Command.LOGIN_REQUEST.getCode(), LoginRequestPacket.class);
-        packetMaping.put(Command.LOGIN_RESPONSE.getCode(), LoginResponsePacket.class);
+        packetMaping = new HashMap<>();
+        packetMaping.put(Command.HEARTBEAT.getCmd(), HeartBeatPacket.class);
+        packetMaping.put(Command.CHAT_REQUEST.getCmd(), ChatRequestPacket.class);
+        packetMaping.put(Command.CHAT_RESPONSE.getCmd(), ChatResponsePacket.class);
+        packetMaping.put(Command.LOGIN_REQUEST.getCmd(), LoginRequestPacket.class);
+        packetMaping.put(Command.LOGIN_RESPONSE.getCmd(), LoginResponsePacket.class);
 
     }
 
 
-    public static BinaryCodec getInstance() {
+    public static BinaryPacketCodec getInstance() {
         return codec;
     }
     @Override

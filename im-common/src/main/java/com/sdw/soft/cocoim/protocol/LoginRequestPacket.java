@@ -16,6 +16,6 @@ public class LoginRequestPacket extends Packet {
 
     @Override
     public byte command() {
-        return Command.LOGIN_REQUEST.getCode();
+        return Command.LOGIN_REQUEST.getCmd();
     }
 }

@@ -18,6 +18,8 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
 
     private static final Logger logger = LoggerFactory.getLogger(LoginResponseHandler.class);
 
+    public static final LoginResponseHandler INSTANCE = new LoginResponseHandler();
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LoginResponsePacket msg) throws Exception {
 

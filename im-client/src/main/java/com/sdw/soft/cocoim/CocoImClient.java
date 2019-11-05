@@ -2,9 +2,9 @@ package com.sdw.soft.cocoim;
 
 import com.sdw.soft.cocoim.cli.ClientEndpoint;
 import com.sdw.soft.cocoim.handler.ChatResponseHandler;
-import com.sdw.soft.cocoim.handler.LoginHandler;
+import com.sdw.soft.cocoim.handler.ClientHandler;
 import com.sdw.soft.cocoim.handler.LoginResponseHandler;
-import com.sdw.soft.cocoim.handler.PacketCodecHandler;
+import com.sdw.soft.cocoim.handler.PacketCodec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -37,10 +37,10 @@ public class CocoImClient {
                     protected void initChannel(SocketChannel ch) throws Exception {
 
                         ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new PacketCodecHandler())
+                        pipeline.addLast(new PacketCodec())
                                 .addLast(new LoginResponseHandler())
                                 .addLast(new ChatResponseHandler())
-                                .addLast(new LoginHandler());
+                                .addLast(ClientHandler.INSTANCE);
 
                     }
                 });

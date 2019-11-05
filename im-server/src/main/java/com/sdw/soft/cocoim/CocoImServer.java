@@ -1,9 +1,10 @@
 package com.sdw.soft.cocoim;
 
-import com.sdw.soft.cocoim.handler.ChatRequestHandler;
-import com.sdw.soft.cocoim.handler.CocoImHandler;
-import com.sdw.soft.cocoim.handler.LoginRequestHandler;
-import com.sdw.soft.cocoim.handler.PacketCodecHandler;
+import com.sdw.soft.cocoim.connection.ConnectionManager;
+import com.sdw.soft.cocoim.connection.NettyConnectionManager;
+import com.sdw.soft.cocoim.exception.ErrorCode;
+import com.sdw.soft.cocoim.exception.ImServiceException;
+import com.sdw.soft.cocoim.handler.*;
 import com.sdw.soft.cocoim.service.Listener;
 import com.sdw.soft.cocoim.service.Server;
 import io.netty.bootstrap.ServerBootstrap;
@@ -16,6 +17,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.sdw.soft.cocoim.protocol.Command.*;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -28,6 +30,10 @@ public class CocoImServer implements Server {
     private static final Logger logger = LoggerFactory.getLogger(CocoImServer.class);
 
     protected final AtomicReference<State> serverState = new AtomicReference<>(State.created);
+
+    private ConnectionManager connectionManager;
+    private MessageDispatcher dispatcher = new MessageDispatcher();
+    private CocoImHandler cocoImHandler;
     private String host;
     private int port;
 
@@ -42,6 +48,27 @@ public class CocoImServer implements Server {
     }
 
     public static void main(String[] args) {
+        CocoImServer cocoImServer = new CocoImServer(8080);
+        cocoImServer.init();
+        cocoImServer.start(null);
+    }
+
+    @Override
+    public void init() {
+        if (!serverState.compareAndSet(State.created, State.initialized)) {
+            throw new ImServiceException(ErrorCode.STARTED_SERVER_INITIAL_FAIL);
+        }
+        this.connectionManager = new NettyConnectionManager();
+        dispatcher.register(LOGIN_REQUEST, () -> new LoginRequestHandler());
+        dispatcher.register(CHAT_REQUEST, () -> new ChatRequestHandler());
+        this.cocoImHandler = new CocoImHandler(connectionManager, dispatcher, false);
+    }
+
+    @Override
+    public void start(Listener listener) {
+        if (!serverState.compareAndSet(State.initialized, State.starting)) {
+            throw new RuntimeException();
+        }
 
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
         NioEventLoopGroup childGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
@@ -58,33 +85,16 @@ public class CocoImServer implements Server {
                         protected void initChannel(SocketChannel ch) throws Exception {
 
                             ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast(new PacketCodecHandler())
-                                    .addLast(new ChatRequestHandler())
-                                    .addLast(new LoginRequestHandler())
-                                    .addLast(new CocoImHandler());
+                            pipeline.addLast(new PacketCodec())
+                                    .addLast(cocoImHandler);
 
                         }
                     });
-            Channel channel = b.bind(8080).syncUninterruptibly().channel();
+            Channel channel = b.bind(port).syncUninterruptibly().channel();
             channel.closeFuture().syncUninterruptibly();
         }finally {
             bossGroup.shutdownGracefully();
             childGroup.shutdownGracefully();
-        }
-    }
-
-    @Override
-    public void init() {
-        if (!serverState.compareAndSet(State.created, State.initialized)) {
-
-        }
-    }
-
-    @Override
-    public void start(Listener listener) {
-
-        if (!serverState.compareAndSet(State.initialized, State.starting)) {
-            throw new RuntimeException();
         }
     }
 

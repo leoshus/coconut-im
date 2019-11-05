@@ -12,7 +12,7 @@ public class HeartBeatPacket extends Packet {
 
     @Override
     public byte command() {
-        return Command.HEARTBEAT.getCode();
+        return Command.HEARTBEAT.getCmd();
     }
 
 }

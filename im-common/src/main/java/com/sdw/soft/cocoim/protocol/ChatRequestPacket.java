@@ -17,6 +17,6 @@ public class ChatRequestPacket extends Packet {
 
     @Override
     public byte command() {
-        return Command.CHAT_REQUEST.getCode();
+        return Command.CHAT_REQUEST.getCmd();
     }
 }

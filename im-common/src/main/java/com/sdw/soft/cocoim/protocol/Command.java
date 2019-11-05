@@ -8,14 +8,14 @@ public enum Command {
     CHAT_RESPONSE(5),
     UNKNOWN(-1),
     ;
-    private byte code;
+    public byte cmd;
 
-    Command(int code) {
-        this.code = (byte)code;
+    Command(int cmd) {
+        this.cmd = (byte) cmd;
     }
 
-    public byte getCode() {
-        return code;
+    public byte getCmd() {
+        return cmd;
     }
 
     Command toCMD(byte code) {
