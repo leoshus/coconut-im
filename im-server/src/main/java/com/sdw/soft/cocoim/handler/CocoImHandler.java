@@ -4,6 +4,7 @@ import com.sdw.soft.cocoim.connection.Connection;
 import com.sdw.soft.cocoim.connection.ConnectionManager;
 import com.sdw.soft.cocoim.connection.NettyConnection;
 import com.sdw.soft.cocoim.protocol.Packet;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
  * @date 2019-11-02 23:18
  * @description
  **/
+@ChannelHandler.Sharable
 public class CocoImHandler extends SimpleChannelInboundHandler<Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(CocoImHandler.class);
@@ -41,9 +43,6 @@ public class CocoImHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         logger.info("client connected conn={}", ctx.channel());
-        /*Connection connection = new NettyConnection();
-        connection.init(ctx.channel(), false);
-        connectionManager.add(connection);*/
     }
 
     @Override

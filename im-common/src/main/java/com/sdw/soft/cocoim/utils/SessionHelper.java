@@ -1,6 +1,5 @@
 package com.sdw.soft.cocoim.utils;
 
-import com.sdw.soft.cocoim.session.Session;
 import io.netty.channel.Channel;
 
 import java.util.Map;
@@ -17,11 +16,6 @@ public final class SessionHelper {
 
 
     private static final Map<Long, Channel> sessions = new ConcurrentHashMap<>();
-
-    public static Session getSession(Channel channel) {
-        return channel.attr(Constant.SESSION).get();
-    }
-
 
     public static Map<Long, Channel> getAllSessions() {
         return sessions;

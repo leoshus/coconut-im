@@ -2,6 +2,8 @@ package com.sdw.soft.cocoim.connection;
 
 import io.netty.channel.Channel;
 
+import java.util.Collection;
+
 /**
  * @author: shangyd
  * @create: 2019-11-05 20:09:12
@@ -19,5 +21,7 @@ public interface ConnectionManager {
     void init();
 
     void destroy();
+
+    Collection<Connection> getAll();
 
 }

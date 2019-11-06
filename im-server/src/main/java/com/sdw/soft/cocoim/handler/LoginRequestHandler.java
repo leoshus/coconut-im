@@ -5,9 +5,7 @@ import com.sdw.soft.cocoim.connection.ConnectionManager;
 import com.sdw.soft.cocoim.connection.NettyConnection;
 import com.sdw.soft.cocoim.protocol.LoginRequestPacket;
 import com.sdw.soft.cocoim.protocol.LoginResponsePacket;
-import com.sdw.soft.cocoim.session.Session;
 import com.sdw.soft.cocoim.utils.Constant;
-import com.sdw.soft.cocoim.utils.SessionHelper;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -33,16 +31,13 @@ public class LoginRequestHandler extends BaseMessageHandler<LoginRequestPacket> 
         response.setMsg("login success");
 
 
-
-        Session session = new Session();
-        session.setUserId(msg.getUserId());
-        session.setUsername(msg.getUserName());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), false);
         connectionManager.add(connection);
-        
-        connection.channel().attr(Constant.SESSION).set(session);
-        SessionHelper.addSession(msg.getUserId(), connection.channel());
+        ctx.channel().attr(Constant.CONNECTION).set(connection);
+        connection.context()
+                .setUserId(msg.getUserId())
+                .setUserName(msg.getUserName());
         connection.channel().attr(Constant.LOGIN).set(true);
         connection.channel().writeAndFlush(response);
     }

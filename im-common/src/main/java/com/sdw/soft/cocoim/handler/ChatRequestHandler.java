@@ -1,10 +1,10 @@
 package com.sdw.soft.cocoim.handler;
 
 import com.sdw.soft.cocoim.connection.Connection;
+import com.sdw.soft.cocoim.connection.ConnectionManager;
 import com.sdw.soft.cocoim.protocol.ChatRequestPacket;
 import com.sdw.soft.cocoim.protocol.ChatResponsePacket;
-import com.sdw.soft.cocoim.session.Session;
-import com.sdw.soft.cocoim.utils.SessionHelper;
+import com.sdw.soft.cocoim.session.SessionContext;
 
 /**
  * @author shangyd
@@ -14,16 +14,22 @@ import com.sdw.soft.cocoim.utils.SessionHelper;
  **/
 public class ChatRequestHandler implements MessageHandler<ChatRequestPacket> {
 
+    private ConnectionManager connectionManager;
+
+    public ChatRequestHandler(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+
     @Override
     public void handleMessage(Connection connection, ChatRequestPacket packet) {
-        Session session = SessionHelper.getSession(connection.channel());
+        SessionContext context = connection.context();
 
         ChatResponsePacket response = new ChatResponsePacket();
         response.setContent(packet.getContent());
-        response.setFromUserId(session.getUserId());
-        response.setFromUserName(session.getUsername());
+        response.setFromUserId(context.getUserId());
+        response.setFromUserName(context.getUserName());
 
-        SessionHelper.getAllSessions().entrySet().stream()
-                .forEach(v -> v.getValue().writeAndFlush(response));
+        connectionManager.getAll().stream()
+                .forEach(v -> v.channel().writeAndFlush(response));
     }
 }

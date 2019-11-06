@@ -2,9 +2,9 @@ package com.sdw.soft.cocoim.handler;
 
 import com.sdw.soft.cocoim.utils.Constant;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * @description
  **/
 @ChannelHandler.Sharable
-public class AuthHandler extends ChannelInboundHandlerAdapter {
+public class AuthHandler extends ChannelDuplexHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthHandler.class);
 
@@ -37,4 +37,5 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         super.handlerRemoved(ctx);
     }
+
 }

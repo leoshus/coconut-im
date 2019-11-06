@@ -5,9 +5,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
- * Unit test for simple CocoImServer.
+ * Unit test for simple NettyTCPServer.
  */
-public class CocoImServerTest
+public class NettyTCPServerTest
 {
     /**
      * Rigorous Test :-)

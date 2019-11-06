@@ -1,6 +1,6 @@
 package com.sdw.soft.cocoim.utils;
 
-import com.sdw.soft.cocoim.session.Session;
+import com.sdw.soft.cocoim.connection.Connection;
 import io.netty.util.AttributeKey;
 
 /**
@@ -11,6 +11,6 @@ import io.netty.util.AttributeKey;
  **/
 public interface Constant {
 
-    AttributeKey<Session> SESSION = AttributeKey.newInstance("session");
+    AttributeKey<Connection> CONNECTION = AttributeKey.newInstance("connection");
     AttributeKey<Boolean> LOGIN = AttributeKey.newInstance("login");
 }

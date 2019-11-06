@@ -16,6 +16,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+
 /**
  * Hello world!
  *
@@ -44,7 +46,7 @@ public class CocoImClient {
 
                     }
                 });
-        b.connect(host, port).addListener(new ChannelFutureListener() {
+        b.connect(new InetSocketAddress(host, port)).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
 
@@ -53,7 +55,7 @@ public class CocoImClient {
                     Thread thread = new Thread(new ClientEndpoint(future.channel()));
                     thread.start();
                 } else {
-                    logger.info("connect server fail");
+                    logger.info("connect server fail,cause {}", future.cause());
                     System.exit(0);
                 }
             }
