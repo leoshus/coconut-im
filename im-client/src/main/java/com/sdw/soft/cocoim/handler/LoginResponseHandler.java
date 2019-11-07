@@ -1,10 +1,12 @@
 package com.sdw.soft.cocoim.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.sdw.soft.cocoim.connection.Connection;
+import com.sdw.soft.cocoim.connection.ConnectionManager;
+import com.sdw.soft.cocoim.connection.NettyConnection;
 import com.sdw.soft.cocoim.protocol.LoginResponsePacket;
 import com.sdw.soft.cocoim.utils.Constant;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,17 +16,23 @@ import org.slf4j.LoggerFactory;
  * @date 2019-11-03 15:44
  * @description
  **/
-public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginResponsePacket> {
+public class LoginResponseHandler extends BaseMessageHandler<LoginResponsePacket> {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginResponseHandler.class);
 
-    public static final LoginResponseHandler INSTANCE = new LoginResponseHandler();
+    private ConnectionManager connectionManager;
+
+    public LoginResponseHandler(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, LoginResponsePacket msg) throws Exception {
-
+    protected void handleMessage(ChannelHandlerContext ctx, LoginResponsePacket msg) {
         logger.info("client has login success:{}", JSON.toJSON(msg));
 
         ctx.channel().attr(Constant.LOGIN).set(true);
+        Connection connection = new NettyConnection();
+        connection.init(ctx.channel(), false);
+        connectionManager.add(connection);
     }
 }

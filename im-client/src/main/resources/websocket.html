@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>websocket demo</title>
+    <script type="text/javascript">
+        var ws = new WebSocket("ws://localhost:8090/ws");
+
+        var loginRequest = {
+            'userId': 1,
+            'userName':'xiaoming'
+        }
+
+        function generateData(req,command) {
+            var req = JSON.stringify(req);
+            var size = req.length * 2;
+            var buffer = new ArrayBuffer(size + 11);
+            var dataView = new DataView(buffer);
+            dataView.setInt32(0, 0x12345678);
+            dataView.setInt8(4, 1);
+            dataView.setInt8(5, 1);
+            dataView.setInt8(6, command);
+            dataView.setInt32(7, size);
+            var bufView = new Uint16Array(buffer.slice(11, size + 11));
+            for (var i = 0, tmp = 11; i < req.length; i++) {
+                dataView.setUint16(11 + i * 1, req.charCodeAt(i));
+            }
+            return dataView.buffer;
+        }
+
+        ws.onopen = function(evt) {
+            console.log("Connection open ...");
+            var buffer = generateData(loginRequest,2);
+
+            ws.send(buffer);
+        };
+
+        ws.onmessage = function(evt) {
+            console.log( "Received Message: " + evt.data);
+            // ws.close();
+        };
+
+        ws.onclose = function(evt) {
+            console.log("Connection closed.");
+        };
+        var sendMsg = function () {
+            var content = document.getElementById("content").value;
+            var chatReq = {
+                'userId':1,
+                'toUserId':2,
+                'content': content
+            }
+            var buffer = generateData(chatReq, 4);
+            ws.send(buffer);
+        }
+    </script>
+</head>
+<body>
+
+<input type="text" id="content" />
+<br/>
+<input id="submit" type="button" value="提交" onclick="sendMsg()"/>
+</body>
+</html>

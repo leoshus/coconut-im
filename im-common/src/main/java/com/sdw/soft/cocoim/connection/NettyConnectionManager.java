@@ -23,7 +23,9 @@ public final class NettyConnectionManager implements ConnectionManager {
     @Override
     public Connection removeAndClose(Channel channel) {
         Connection conn = connections.remove(channel.id());
-        conn.close();
+        if (conn != null) {
+            conn.close();
+        }
         return conn;
     }
 

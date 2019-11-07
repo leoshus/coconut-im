@@ -13,7 +13,6 @@ import static com.sdw.soft.cocoim.protocol.Command.HEARTBEAT;
  **/
 public class CocoImServer extends NettyTCPServer {
 
-
     public CocoImServer(int port) {
         super(port);
     }

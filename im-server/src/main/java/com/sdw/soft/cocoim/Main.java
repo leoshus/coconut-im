@@ -1,5 +1,6 @@
 package com.sdw.soft.cocoim;
 
+import com.sdw.soft.cocoim.server.CocoImServer;
 import com.sdw.soft.cocoim.server.WebsocketServer;
 
 /**
@@ -10,9 +11,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-//        CocoImServer server = new CocoImServer(8080);
         WebsocketServer server = new WebsocketServer(8090);
         server.init();
         server.start(null);
+
+        CocoImServer tcpServer = new CocoImServer(8080);
+        tcpServer.init();
+        tcpServer.start(null);
     }
 }

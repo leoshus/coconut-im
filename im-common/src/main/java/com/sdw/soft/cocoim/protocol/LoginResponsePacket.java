@@ -9,7 +9,7 @@ package com.sdw.soft.cocoim.protocol;
 public class LoginResponsePacket extends BaseResponsePacket {
     @Override
     public byte command() {
-        return Command.CHAT_RESPONSE.getCmd();
+        return Command.LOGIN_RESPONSE.getCmd();
     }
 
 }
