@@ -21,8 +21,7 @@
             dataView.setInt8(5, 1);
             dataView.setInt8(6, command);
             dataView.setInt32(7, size);
-            var bufView = new Uint16Array(buffer.slice(11, size + 11));
-            for (var i = 0, tmp = 11; i < req.length; i++) {
+            for (var i = 0; i < req.length; i++) {
                 dataView.setUint16(11 + i * 1, req.charCodeAt(i));
             }
             return dataView.buffer;
