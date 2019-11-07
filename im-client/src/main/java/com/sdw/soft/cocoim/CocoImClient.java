@@ -8,10 +8,7 @@ import com.sdw.soft.cocoim.protocol.Command;
 import com.sdw.soft.cocoim.service.Listener;
 import com.sdw.soft.cocoim.service.Service;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -33,10 +30,11 @@ public class CocoImClient implements Service {
     private ClientHandler handler;
     private MessageDispatcher dispatcher = new MessageDispatcher();
     private ConnectionManager connectionManager = new NettyConnectionManager();
+    protected EventLoopGroup worker;
 
     @Override
     public void init() {
-
+        this.worker = new NioEventLoopGroup();
         this.handler = new ClientHandler(dispatcher, connectionManager);
         this.dispatcher.register(Command.CHAT_RESPONSE, new ChatResponseHandler());
     }
@@ -50,8 +48,6 @@ public class CocoImClient implements Service {
 
     @Override
     public void start(Listener listener) {
-
-        NioEventLoopGroup worker = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
         b.group(worker)
                 .channel(NioSocketChannel.class)
@@ -84,5 +80,11 @@ public class CocoImClient implements Service {
     @Override
     public void stop(Listener listener) {
 
+        if (worker != null) {
+            worker.shutdownGracefully();
+        }
+        if (listener != null) {
+            listener.onSuccess();
+        }
     }
 }

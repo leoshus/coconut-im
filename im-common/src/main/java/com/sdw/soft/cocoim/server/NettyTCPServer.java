@@ -125,12 +125,16 @@ public abstract class NettyTCPServer implements Server {
     public void stop(Listener listener) {
 
         if (!serverState.compareAndSet(State.started, State.shutdown)) {
-            if (listener != null) listener.onFailure(new ImServiceException("NettyTCPServer has already shutdown."));
-            logger.info("NettyTCPServer has already shutdown.");
+            if (listener != null) {
+                ImServiceException throwable = new ImServiceException("NettyTCPServer has already shutdown.");
+                listener.onFailure(throwable);
+            } else {
+                logger.info("NettyTCPServer has already shutdown.");
+            }
         } else {
-
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
+            listener.onSuccess();
         }
     }
 

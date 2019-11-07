@@ -1,6 +1,7 @@
 package com.sdw.soft.cocoim.codec;
 
 import com.sdw.soft.cocoim.protocol.*;
+import com.sdw.soft.cocoim.protocol.packet.RegisterServicePacket;
 import com.sdw.soft.cocoim.serialization.Serialization;
 import com.sdw.soft.cocoim.serialization.Serializer;
 import io.netty.buffer.ByteBuf;
@@ -30,11 +31,12 @@ public class BinaryPacketCodec implements Codec {
 
     static {
         packetMaping = new HashMap<>();
-        packetMaping.put(Command.HEARTBEAT.getCmd(), HeartBeatPacket.class);
-        packetMaping.put(Command.CHAT_REQUEST.getCmd(), ChatRequestPacket.class);
-        packetMaping.put(Command.CHAT_RESPONSE.getCmd(), ChatResponsePacket.class);
-        packetMaping.put(Command.LOGIN_REQUEST.getCmd(), LoginRequestPacket.class);
-        packetMaping.put(Command.LOGIN_RESPONSE.getCmd(), LoginResponsePacket.class);
+        packetMaping.put(Command.HEARTBEAT.cmd, HeartBeatPacket.class);
+        packetMaping.put(Command.CHAT_REQUEST.cmd, ChatRequestPacket.class);
+        packetMaping.put(Command.CHAT_RESPONSE.cmd, ChatResponsePacket.class);
+        packetMaping.put(Command.LOGIN_REQUEST.cmd, LoginRequestPacket.class);
+        packetMaping.put(Command.LOGIN_RESPONSE.cmd, LoginResponsePacket.class);
+        packetMaping.put(Command.REGISTER_SERVICE_REQUEST.cmd, RegisterServicePacket.class);
 
     }
 

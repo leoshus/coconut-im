@@ -15,8 +15,8 @@ public class NettyConfig {
     private boolean tcpNoDelay = false;
     private boolean tcpReuseAddr = true;
     private boolean tcpKeepAlive = false;
-    private int tcpSndBuf = 32 * 1024;
-    private int tcpRcvBuf = 32 * 1024;
+    private int tcpSndBuf = 64 * 1024;
+    private int tcpRcvBuf = 64 * 1024;
     private boolean useEpoll = false;
     private boolean pooledByteBufAllocatorEnable = false;
     private boolean security;

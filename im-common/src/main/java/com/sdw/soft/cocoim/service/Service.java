@@ -8,9 +8,9 @@ package com.sdw.soft.cocoim.service;
  **/
 public interface Service {
 
+    void init();
+
     void start(Listener listener);
 
     void stop(Listener listener);
-
-    void init();
 }

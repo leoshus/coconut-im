@@ -2,6 +2,7 @@ package com.sdw.soft.cocoim;
 
 import com.sdw.soft.cocoim.server.CocoImServer;
 import com.sdw.soft.cocoim.server.WebsocketServer;
+import com.sdw.soft.cocoim.service.Listener;
 
 /**
  * @author: shangyd
@@ -11,12 +12,38 @@ public class Main {
 
     public static void main(String[] args) {
 
-        WebsocketServer server = new WebsocketServer(8090);
-        server.init();
-        server.start(null);
+        WebsocketServer wsServer = new WebsocketServer(8090);
+        wsServer.init();
+        wsServer.start(null);
 
         CocoImServer tcpServer = new CocoImServer(8080);
         tcpServer.init();
         tcpServer.start(null);
+
+
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            wsServer.stop(new Listener() {
+                @Override
+                public void onSuccess(Object... args) {
+
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+
+                }
+            });
+            tcpServer.stop(new Listener() {
+                @Override
+                public void onSuccess(Object... args) {
+
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+
+                }
+            });
+        }));
     }
 }

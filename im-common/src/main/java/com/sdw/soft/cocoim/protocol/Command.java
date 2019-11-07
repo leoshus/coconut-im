@@ -6,6 +6,8 @@ public enum Command {
     LOGIN_RESPONSE(3),
     CHAT_REQUEST(4),
     CHAT_RESPONSE(5),
+    REGISTER_SERVICE_REQUEST(6),
+    UNREGISTER_SERVICE(7),
     UNKNOWN(-1),
     ;
     public byte cmd;
