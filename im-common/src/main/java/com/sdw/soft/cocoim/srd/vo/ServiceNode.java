@@ -15,5 +15,6 @@ public class ServiceNode {
     private String clusterName;
     private String host;
     private int port;
+    private long lastUpdateTime;
 
 }

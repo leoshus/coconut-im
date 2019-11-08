@@ -8,7 +8,7 @@ import com.sdw.soft.cocoim.protocol.Packet;
  **/
 public interface RemotingClient extends RemotingService {
 
-    public Packet invokeSync(Packet req, String address);
+    public Packet invokeSync(Packet req, String address, long timeoutMillis);
 
 
 }

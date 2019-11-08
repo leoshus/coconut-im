@@ -4,11 +4,13 @@ import com.sdw.soft.cocoim.connection.Connection;
 import com.sdw.soft.cocoim.connection.ConnectionManager;
 import com.sdw.soft.cocoim.connection.NettyConnection;
 import com.sdw.soft.cocoim.connection.NettyConnectionManager;
+import com.sdw.soft.cocoim.exception.ImServiceException;
 import com.sdw.soft.cocoim.handler.MessageDispatcher;
 import com.sdw.soft.cocoim.handler.PacketCodec;
 import com.sdw.soft.cocoim.handler.RegisterServiceHandler;
 import com.sdw.soft.cocoim.protocol.Command;
 import com.sdw.soft.cocoim.protocol.Packet;
+import com.sdw.soft.cocoim.remoting.future.ResponseFuture;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -18,6 +20,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author: shangyd
@@ -25,7 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class NettyRemotingClient implements RemotingClient{
 
-    private final static Map<String, Channel> channelCache = new ConcurrentHashMap<>();
+    private final static ConcurrentMap<String, Channel> channelCache = new ConcurrentHashMap<>();
+    private final static ConcurrentMap<Integer, ResponseFuture> requestTable = new ConcurrentHashMap<>();
 
     private ClientHandler handler;
     private MessageDispatcher dispatcher = new MessageDispatcher();
@@ -64,19 +68,51 @@ public class NettyRemotingClient implements RemotingClient{
     }
 
     @Override
-    public Packet invokeSync(Packet req, String address) {
-        Channel channel = channelCache.get(address);
-        if (channel != null) {
-            ChannelFuture future = channel.writeAndFlush(req);
-        } else {
+    public Packet invokeSync(Packet req, String address, long timeoutMillis) {
+        int opaque = req.getOpaque();
+        try {
+            Channel channel = this.getAndCreateChannel(address);
+            final ResponseFuture future = new ResponseFuture(opaque, channel, timeoutMillis);
+            channel.writeAndFlush(req).addListener(f -> {
+                if (f.isSuccess()) {
+                    future.setSendRequestOK(true);
+                    return;
+                } else {
+                    future.setSendRequestOK(false);
+                }
+                requestTable.remove(future.getOpaque());
+                future.setThrowable(f.cause());
+                future.setResult(null);
+            });
 
+            Packet packet = future.waitResponse(timeoutMillis);
+            if (null == packet) {
+                if (future.isSendRequestOK()) {
+
+                } else {
+                    throw new ImServiceException("invoke fail");
+                }
+            }
+            return packet;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            requestTable.remove(opaque);
+        }
+
+
+        return null;
+    }
+
+    private Channel getAndCreateChannel(String address) {
+        Channel channel = channelCache.get(address);
+        if (channel == null) {
             String[] split = address.split(":");
             ChannelFuture f = bootstrap.connect(new InetSocketAddress(split[0], Integer.valueOf(split[1])));
-            Channel ch = f.syncUninterruptibly().channel();
-            channelCache.putIfAbsent(address, ch);
-            ch.writeAndFlush(req);
+            channel = f.syncUninterruptibly().channel();
+            channelCache.putIfAbsent(address, channel);
         }
-        return null;
+        return channel;
     }
 
 

@@ -2,6 +2,8 @@ package com.sdw.soft.cocoim.protocol;
 
 import lombok.Data;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * magiccode(4)+version(1)+serialization(1)+cmd(1)+length(4)+body(n)
  * magiccode(4)+version(1)+serialization(1)+cmd(1)+length(4)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
@@ -13,6 +15,10 @@ import lombok.Data;
  **/
 @Data
 public abstract class Packet {
+
+    private static AtomicInteger requestId = new AtomicInteger(0);
+
+    private int opaque = requestId.getAndIncrement();
 
     private Byte version = 1;
 
