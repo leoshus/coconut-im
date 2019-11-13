@@ -1,6 +1,5 @@
 package com.sdw.soft.cocoim.remoting.future;
 
-import com.sdw.soft.cocoim.protocol.Packet;
 import io.netty.channel.Channel;
 import lombok.Data;
 
@@ -12,7 +11,8 @@ import java.util.concurrent.TimeUnit;
  * @create: 2019-11-08 14:39:23
  **/
 @Data
-public class ResponseFuture {
+public class ResponseFuture<T> {
+
 
     private CountDownLatch latch = new CountDownLatch(1);
 
@@ -20,7 +20,7 @@ public class ResponseFuture {
     private final Channel channel;
     private final long timeoutMillis;
 
-    private volatile Packet result;
+    private volatile T result;
     private volatile Throwable throwable;
     private volatile boolean sendRequestOK;
 
@@ -30,12 +30,12 @@ public class ResponseFuture {
         this.timeoutMillis = timeoutMillis;
     }
 
-    public Packet waitResponse(long milliseconds) throws InterruptedException {
+    public T waitResponse(long milliseconds) throws InterruptedException {
         latch.await(milliseconds, TimeUnit.MILLISECONDS);
         return this.result;
     }
 
-    public void setResult(Packet packet) {
+    public void setResult(T packet) {
         this.result = packet;
         latch.countDown();
     }

@@ -4,9 +4,13 @@ import static org.junit.Assert.assertTrue;
 
 import com.sdw.soft.cocoim.protocol.packet.RegisterServicePacket;
 import com.sdw.soft.cocoim.remoting.NettyRemotingClient;
+import com.sdw.soft.cocoim.remoting.command.RemotingCommand;
+import com.sdw.soft.cocoim.remoting.command.RemotingCommandType;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -28,12 +32,11 @@ public class AppTest {
     @Test
     public void testRemotingClient() {
 
-        RegisterServicePacket req = new RegisterServicePacket();
-        req.setClusterName("testCluster");
-        req.setHost("127.0.0.1");
-        req.setPort(8080);
-
-        client.invokeSync(req, "127.0.0.1:10123");
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("host", "127.0.0.1");
+        properties.put("port", 8080);
+        RemotingCommand req = new RemotingCommand(RemotingCommandType.BROKER_REGISTER, properties);
+        client.invokeSync(req, "127.0.0.1:10123", 3000);
 
         LockSupport.park();
     }

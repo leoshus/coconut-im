@@ -2,11 +2,12 @@ package com.sdw.soft.cocoim;
 
 import com.sdw.soft.cocoim.connection.ConnectionManager;
 import com.sdw.soft.cocoim.connection.NettyConnectionManager;
-import com.sdw.soft.cocoim.handler.MessageDispatcher;
 import com.sdw.soft.cocoim.handler.NameServerHandler;
-import com.sdw.soft.cocoim.handler.PacketCodec;
-import com.sdw.soft.cocoim.handler.RegisterServiceHandler;
-import com.sdw.soft.cocoim.protocol.Command;
+import com.sdw.soft.cocoim.remoting.codec.NameServerCodec;
+import com.sdw.soft.cocoim.remoting.command.RemotingCommandType;
+import com.sdw.soft.cocoim.remoting.dispatcher.RemotingMessageDispatcher;
+import com.sdw.soft.cocoim.remoting.handler.RegisterRemotingProcessor;
+import com.sdw.soft.cocoim.remoting.route.RouteManager;
 import com.sdw.soft.cocoim.server.NettyTCPServer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -19,8 +20,10 @@ public class NettyNameServer extends NettyTCPServer {
 
 
     private NameServerHandler handler;
-    private MessageDispatcher dispatcher = new MessageDispatcher();
+    private RemotingMessageDispatcher dispatcher = new RemotingMessageDispatcher();
     private ConnectionManager connectionManager = new NettyConnectionManager();
+
+    private RouteManager routeManager = new RouteManager();
 
     public NettyNameServer(int port) {
         super(port);
@@ -30,13 +33,14 @@ public class NettyNameServer extends NettyTCPServer {
     public void init() {
         super.init();
         this.handler = new NameServerHandler(connectionManager, dispatcher);
-        dispatcher.register(Command.REGISTER_SERVICE_REQUEST, new RegisterServiceHandler());
+        routeManager.init();
+        dispatcher.register(RemotingCommandType.BROKER_REGISTER, new RegisterRemotingProcessor(routeManager));
     }
 
     @Override
     protected void initPipleline(SocketChannel ch) {
         ChannelPipeline p = ch.pipeline();
-        p.addLast("im-codec", new PacketCodec())
+        p.addLast("nameserver-codec", new NameServerCodec())
                 .addLast(handler);
     }
 

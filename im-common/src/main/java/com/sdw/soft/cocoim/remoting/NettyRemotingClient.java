@@ -5,12 +5,12 @@ import com.sdw.soft.cocoim.connection.ConnectionManager;
 import com.sdw.soft.cocoim.connection.NettyConnection;
 import com.sdw.soft.cocoim.connection.NettyConnectionManager;
 import com.sdw.soft.cocoim.exception.ImServiceException;
-import com.sdw.soft.cocoim.handler.MessageDispatcher;
-import com.sdw.soft.cocoim.handler.PacketCodec;
-import com.sdw.soft.cocoim.handler.RegisterServiceHandler;
-import com.sdw.soft.cocoim.protocol.Command;
-import com.sdw.soft.cocoim.protocol.Packet;
+import com.sdw.soft.cocoim.remoting.codec.NameServerCodec;
+import com.sdw.soft.cocoim.remoting.command.RemotingCommand;
+import com.sdw.soft.cocoim.remoting.command.RemotingCommandType;
+import com.sdw.soft.cocoim.remoting.dispatcher.RemotingMessageDispatcher;
 import com.sdw.soft.cocoim.remoting.future.ResponseFuture;
+import com.sdw.soft.cocoim.remoting.handler.ResponseRemotingProcessor;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -18,10 +18,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 /**
  * @author: shangyd
  * @create: 2019-11-07 19:47:40
@@ -32,7 +30,7 @@ public class NettyRemotingClient implements RemotingClient{
     private final static ConcurrentMap<Integer, ResponseFuture> requestTable = new ConcurrentHashMap<>();
 
     private ClientHandler handler;
-    private MessageDispatcher dispatcher = new MessageDispatcher();
+    private RemotingMessageDispatcher dispatcher = new RemotingMessageDispatcher();
     private ConnectionManager connectionManager = new NettyConnectionManager();
     private EventLoopGroup worker;
     private Bootstrap bootstrap;
@@ -42,7 +40,7 @@ public class NettyRemotingClient implements RemotingClient{
         this.worker = new NioEventLoopGroup(1);
         this.bootstrap = new Bootstrap();
         this.handler = new ClientHandler();
-        dispatcher.register(Command.REGISTER_SERVICE_REQUEST,new RegisterServiceHandler());
+        dispatcher.register(RemotingCommandType.RESPONSE, new ResponseRemotingProcessor(this));
     }
 
     @Override
@@ -54,7 +52,7 @@ public class NettyRemotingClient implements RemotingClient{
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new PacketCodec())
+                        pipeline.addLast(new NameServerCodec())
                                 .addLast(handler);
                     }
                 });
@@ -68,11 +66,11 @@ public class NettyRemotingClient implements RemotingClient{
     }
 
     @Override
-    public Packet invokeSync(Packet req, String address, long timeoutMillis) {
+    public RemotingCommand invokeSync(RemotingCommand req, String address, long timeoutMillis) {
         int opaque = req.getOpaque();
         try {
             Channel channel = this.getAndCreateChannel(address);
-            final ResponseFuture future = new ResponseFuture(opaque, channel, timeoutMillis);
+            final ResponseFuture<RemotingCommand> future = new ResponseFuture(opaque, channel, timeoutMillis);
             channel.writeAndFlush(req).addListener(f -> {
                 if (f.isSuccess()) {
                     future.setSendRequestOK(true);
@@ -85,15 +83,15 @@ public class NettyRemotingClient implements RemotingClient{
                 future.setResult(null);
             });
 
-            Packet packet = future.waitResponse(timeoutMillis);
-            if (null == packet) {
+            RemotingCommand command = future.waitResponse(timeoutMillis);
+            if (null == command) {
                 if (future.isSendRequestOK()) {
 
                 } else {
                     throw new ImServiceException("invoke fail");
                 }
             }
-            return packet;
+            return command;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }finally {
@@ -129,13 +127,17 @@ public class NettyRemotingClient implements RemotingClient{
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            dispatcher.onReceive((Packet) msg, connectionManager.get(ctx.channel()));
+            dispatcher.onReceive(connectionManager.get(ctx.channel()), (RemotingCommand) msg);
         }
 
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
             connectionManager.removeAndClose(ctx.channel());
         }
+    }
+
+    public ConcurrentMap<Integer, ResponseFuture> getRequestTable() {
+        return requestTable;
     }
 }
 

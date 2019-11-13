@@ -4,6 +4,8 @@ import com.sdw.soft.cocoim.connection.Connection;
 import com.sdw.soft.cocoim.connection.ConnectionManager;
 import com.sdw.soft.cocoim.connection.NettyConnection;
 import com.sdw.soft.cocoim.protocol.Packet;
+import com.sdw.soft.cocoim.remoting.command.RemotingCommand;
+import com.sdw.soft.cocoim.remoting.dispatcher.RemotingMessageDispatcher;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -20,9 +22,9 @@ public class NameServerHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(NameServerHandler.class);
 
     private ConnectionManager connectionManager;
-    private MessageDispatcher dispatcher;
+    private RemotingMessageDispatcher dispatcher;
 
-    public NameServerHandler(ConnectionManager connectionManager, MessageDispatcher dispatcher) {
+    public NameServerHandler(ConnectionManager connectionManager, RemotingMessageDispatcher dispatcher) {
         this.connectionManager = connectionManager;
         this.dispatcher = dispatcher;
     }
@@ -36,7 +38,7 @@ public class NameServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        dispatcher.onReceive((Packet) msg, connectionManager.get(ctx.channel()));
+        dispatcher.onReceive(connectionManager.get(ctx.channel()), (RemotingCommand) msg);
     }
 
 
