@@ -37,7 +37,7 @@ public class RouteManager {
 
     public void addBroker(Broker broker) {
 
-        Broker old = brokerMapping.putIfAbsent(broker.getHost(), broker);
+        Broker old = brokerMapping.putIfAbsent(broker.getType(), broker);
         if (old != null) {
             old.setLastUpdateTime(SystemHelper.now());
         } else {

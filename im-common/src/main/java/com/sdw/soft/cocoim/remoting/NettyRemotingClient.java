@@ -71,6 +71,7 @@ public class NettyRemotingClient implements RemotingClient{
         try {
             Channel channel = this.getAndCreateChannel(address);
             final ResponseFuture<RemotingCommand> future = new ResponseFuture(opaque, channel, timeoutMillis);
+            requestTable.put(opaque, future);
             channel.writeAndFlush(req).addListener(f -> {
                 if (f.isSuccess()) {
                     future.setSendRequestOK(true);

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Broker {
 
+    private String type;
     private String host;
     private int port;
     private long lastUpdateTime;

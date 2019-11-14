@@ -28,6 +28,7 @@ public class Main {
                 client.init();
                 client.start();
                 Map<String, Object> map = new HashMap<>();
+                map.put("type", "WebSocketServer");
                 map.put("host", "127.0.0.1");
                 map.put("port", 8090);
                 RemotingCommand command = new RemotingCommand(RemotingCommandType.BROKER_REGISTER, map);
@@ -51,6 +52,7 @@ public class Main {
                 client.init();
                 client.start();
                 Map<String, Object> map = new HashMap<>();
+                map.put("type", "TCPServer");
                 map.put("host", "127.0.0.1");
                 map.put("port", 8080);
                 RemotingCommand command = new RemotingCommand(RemotingCommandType.BROKER_REGISTER, map);

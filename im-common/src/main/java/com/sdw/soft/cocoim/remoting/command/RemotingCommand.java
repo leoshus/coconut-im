@@ -23,6 +23,12 @@ public class RemotingCommand {
         this.properties = properties;
     }
 
+    public RemotingCommand(RemotingCommandType type, int opaque, Map<String, Object> properties) {
+        this.type = type;
+        this.properties = properties;
+        this.opaque = opaque;
+    }
+
     public CustomHeader getCustomHeader() {
         return customHeader;
     }
