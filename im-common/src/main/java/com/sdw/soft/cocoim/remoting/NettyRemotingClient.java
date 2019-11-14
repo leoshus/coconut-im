@@ -22,11 +22,14 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 /**
  * @author: shangyd
  * @create: 2019-11-07 19:47:40
  **/
 public class NettyRemotingClient implements RemotingClient{
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyRemotingClient.class);
 
     private final static ConcurrentMap<String, Channel> channelCache = new ConcurrentHashMap<>();
     private final static ConcurrentMap<Integer, ResponseFuture> requestTable = new ConcurrentHashMap<>();
@@ -109,8 +112,18 @@ public class NettyRemotingClient implements RemotingClient{
         Channel channel = channelCache.get(address);
         if (channel == null) {
             String[] split = address.split(":");
-            ChannelFuture f = bootstrap.connect(new InetSocketAddress(split[0], Integer.valueOf(split[1])));
-            channel = f.syncUninterruptibly().channel();
+            ChannelFuture f = null;
+            do {
+
+                try {
+                    f = bootstrap.connect(new InetSocketAddress(split[0], Integer.valueOf(split[1])));
+                    channel = f.syncUninterruptibly().channel();
+                } catch (Exception e) {
+                    logger.error("Netty Remoting Client create channel occur exception", e);
+
+                }
+            } while (channel == null || !channel.isActive());
+
             channelCache.putIfAbsent(address, channel);
         }
         return channel;
