@@ -49,8 +49,8 @@ public abstract class NettyTCPServer implements Server {
     private boolean security;
     private Class channelClazz;
 
-    private String host;
-    private int port;
+    protected String host;
+    protected int port;
 
     public NettyTCPServer(int port) {
         this.port = port;

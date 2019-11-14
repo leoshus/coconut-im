@@ -16,6 +16,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
@@ -118,6 +120,8 @@ public class NettyRemotingClient implements RemotingClient{
     @ChannelHandler.Sharable
     private class ClientHandler extends ChannelInboundHandlerAdapter {
 
+        private final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
+
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
@@ -134,6 +138,11 @@ public class NettyRemotingClient implements RemotingClient{
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
             connectionManager.removeAndClose(ctx.channel());
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            logger.error("Client receive Server side exception,", cause);
         }
     }
 

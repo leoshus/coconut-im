@@ -29,7 +29,7 @@ public class RegisterRemotingProcessor implements RemotingMessageProcessor {
         logger.info("Register request:{}", JSONObject.toJSON(command));
         Broker broker = new Broker((String) command.getProperties().get("type"), (String) command.getProperties().get("host"), Integer.valueOf(command.getProperties().get("port").toString()), SystemHelper.now());
 
-        routeManager.addBroker(broker);
+        routeManager.registerBroker(broker);
         RemotingCommand cmd = new RemotingCommand(RemotingCommandType.RESPONSE, null);
         cmd.setOpaque(command.getOpaque());
         connection.channel().writeAndFlush(cmd);

@@ -24,16 +24,6 @@ public class Main {
         wsServer.start(new Listener() {
             @Override
             public void onSuccess(Object... args) {
-                RemotingClient client = new NettyRemotingClient();
-                client.init();
-                client.start();
-                Map<String, Object> map = new HashMap<>();
-                map.put("type", "WebSocketServer");
-                map.put("host", "127.0.0.1");
-                map.put("port", 8090);
-                RemotingCommand command = new RemotingCommand(RemotingCommandType.BROKER_REGISTER, map);
-                command = client.invokeSync(command, "127.0.0.1:10123", 3000);
-                System.out.println(command.getType());
 
             }
 
@@ -48,16 +38,7 @@ public class Main {
         tcpServer.start(new Listener() {
             @Override
             public void onSuccess(Object... args) {
-                RemotingClient client = new NettyRemotingClient();
-                client.init();
-                client.start();
-                Map<String, Object> map = new HashMap<>();
-                map.put("type", "TCPServer");
-                map.put("host", "127.0.0.1");
-                map.put("port", 8080);
-                RemotingCommand command = new RemotingCommand(RemotingCommandType.BROKER_REGISTER, map);
-                command = client.invokeSync(command, "127.0.0.1:10123", 3000);
-                System.out.println(command.getType());
+
             }
 
             @Override
